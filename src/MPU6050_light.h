@@ -15,6 +15,8 @@
 
 #include "Arduino.h"
 #include "Wire.h"
+#include <SimpleKalmanFilter.h>
+
 
 #define MPU6050_ADDR                  0x68
 #define MPU6050_SMPLRT_DIV_REGISTER   0x19
@@ -36,7 +38,7 @@
 class MPU6050{
   public:
     // INIT and BASIC FUNCTIONS
-	MPU6050(TwoWire &w);
+	MPU6050(TwoWire &w , boolean filterOn, SimpleKalmanFilter filter);
     byte begin(int gyro_config_num=1, int acc_config_num=0);
 	
 	byte writeData(byte reg, byte data);
@@ -84,6 +86,7 @@ class MPU6050{
 	
 	float getAccAngleX(){ return angleAccX; };
     float getAccAngleY(){ return angleAccY; };
+	float getAccAngleYFiltered(){ return angleAccYFiltered; };
 
     float getAngleX(){ return angleX; };
     float getAngleY(){ return angleY; };
@@ -105,7 +108,12 @@ class MPU6050{
 	float accXoffset, accYoffset, accZoffset;
     float temp, accX, accY, accZ, gyroX, gyroY, gyroZ;
     float angleAccX, angleAccY;
+	float angleAccYFiltered;
     float angleX, angleY, angleZ;
+
+	SimpleKalmanFilter filter;
+	boolean filterOn;
+
     unsigned long preInterval;
     float filterGyroCoef; // complementary filter coefficient to balance gyro vs accelero data to get angle
 };
